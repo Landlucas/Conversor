@@ -18,6 +18,7 @@ class JsonDownloader extends AsyncTask<String, Integer, String> {
 
     @Override
     protected String doInBackground(String... txtURL) {
+
         HttpURLConnection urlConnection = null;
         BufferedReader reader = null;
         try {
@@ -48,6 +49,7 @@ class JsonDownloader extends AsyncTask<String, Integer, String> {
             }
         }
         return null;
+
     }
 
 }
