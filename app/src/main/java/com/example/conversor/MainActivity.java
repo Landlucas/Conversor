@@ -4,7 +4,10 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 import android.view.Gravity;
+import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -12,7 +15,10 @@ public class MainActivity extends AppCompatActivity {
 
     ExchangeRater exchangeRater;
     Spinner fromCurrency;
+    EditText fromValue;
     Spinner toCurrency;
+    EditText toValue;
+    Button convert;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,7 +26,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         fromCurrency = findViewById(R.id.fromCurrency);
+        fromValue = findViewById(R.id.fromValue);
         toCurrency = findViewById(R.id.toCurrency);
+        toValue = findViewById(R.id.toValue);
+        convert = findViewById(R.id.convert);
 
         exchangeRater = new ExchangeRater(getBaseContext());
         if ( exchangeRater.getRates().isEmpty() ) {
@@ -44,6 +53,13 @@ public class MainActivity extends AppCompatActivity {
         toCurrencyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         toCurrency.setAdapter(toCurrencyAdapter);
 
+    }
+
+    public void btnConvertClick(View v) {
+        Double fromNumber = (Double.parseDouble((fromValue.getText().toString())));
+        if (fromNumber > 0) {
+            toValue.setText(exchangeRater.convertCurrency(fromCurrency.getSelectedItem().toString(), fromNumber, toCurrency.getSelectedItem().toString()).toString());
+        }
     }
 
 }

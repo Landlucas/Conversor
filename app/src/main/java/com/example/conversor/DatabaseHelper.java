@@ -2,14 +2,11 @@ package com.example.conversor;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
-import android.util.Log;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -20,7 +17,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static DatabaseHelper sInstance;
 
     public static final String DATABASE_NAME = "conversor.db";
-    public static final Integer DATABASE_VERSION = 3;
+    public static final Integer DATABASE_VERSION = 6;
     private SQLiteDatabase db;
     private Context ctx;
 
@@ -31,10 +28,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public static synchronized DatabaseHelper getInstance(Context context) {
-
-        // Use the application context, which will ensure that you
-        // don't accidentally leak an Activity's context.
-        // See this article for more information: http://bit.ly/6LRzfx
         if (sInstance == null) {
             sInstance = new DatabaseHelper(context.getApplicationContext());
         }
@@ -71,14 +64,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public Map<String,Double> getRatesMapbyDate(Date date) {
-        String cols[] = {ExchangeRatesTable._ID, ExchangeRatesTable.COLUMN_CURRENCY, ExchangeRatesTable.COLUMN_RATE, ExchangeRatesTable.COLUMN_DATE};
-        Cursor cursor = db.query(ExchangeRatesTable.TABLE_NAME, cols, null, null, null, null, ExchangeRatesTable._ID);
-        Map<String,Double> rates = new HashMap<String,Double>();
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        String cols[] = {ExchangeRatesTable._ID, ExchangeRatesTable.COLUMN_CURRENCY, ExchangeRatesTable.COLUMN_RATE, ExchangeRatesTable.COLUMN_DATE};
+        String where = ExchangeRatesTable.COLUMN_DATE + " = ?";
+        String[] whereArgs = new String[] {
+                dateFormat.format(date)
+        };
+        Cursor cursor = db.query(ExchangeRatesTable.TABLE_NAME, cols, where, whereArgs, null, null, ExchangeRatesTable.COLUMN_CURRENCY);
+        Map<String,Double> rates = new HashMap<String,Double>();
         while (cursor.moveToNext()) {
-            if (cursor.getString(cursor.getColumnIndex(ExchangeRatesTable.COLUMN_DATE)).equals(dateFormat.format(date)) ) {
-                rates.put(cursor.getString(cursor.getColumnIndex(ExchangeRatesTable.COLUMN_CURRENCY)),cursor.getDouble(cursor.getColumnIndex(ExchangeRatesTable.COLUMN_RATE)));
-            }
+            rates.put(cursor.getString(cursor.getColumnIndex(ExchangeRatesTable.COLUMN_CURRENCY)),cursor.getDouble(cursor.getColumnIndex(ExchangeRatesTable.COLUMN_RATE)));
         }
         return rates;
     }

@@ -8,6 +8,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -20,24 +21,21 @@ public class ExchangeRater {
     private JSONObject exchangeRatesJSON;
     private Map<String,Double> rates;
     private ArrayList<String> labels;
-    private Boolean hasRates;
     private Date ratesDate;
-    public DatabaseHelper db;
+    private DatabaseHelper db;
 
     public ExchangeRater(Context context) {
         db = DatabaseHelper.getInstance(context);
         this.labels = new ArrayList<String>();
         this.ratesDate = new Date(System.currentTimeMillis());
         this.rates = db.getRatesMapbyDate(this.ratesDate);
-        if ( this.rates.isEmpty() ) {
-            this.hasRates = false;
-        } else {
-            this.hasRates = true;
+        if ( ! this.rates.isEmpty() ) {
             Iterator it = this.rates.entrySet().iterator();
             while (it.hasNext()) {
                 Map.Entry pair = (Map.Entry)it.next();
                 this.labels.add(pair.getKey().toString());
             }
+            Collections.sort(this.labels, String.CASE_INSENSITIVE_ORDER);
         }
     }
 
@@ -45,23 +43,26 @@ public class ExchangeRater {
     public void fetchNewRates() throws JSONException, ExecutionException, InterruptedException {
         String out = new JsonDownloader().execute("https://api.exchangeratesapi.io/latest?base=BRL").get();
         exchangeRatesJSON = new JSONObject(out);
-        JSONObject rates = exchangeRatesJSON.getJSONObject("rates");
+        JSONObject jsonRates = exchangeRatesJSON.getJSONObject("rates");
         this.rates = new HashMap<String,Double>();
-        Iterator<String> iter = rates.keys();
+        Iterator<String> iter = jsonRates.keys();
         while (iter.hasNext()) {
             String key = iter.next();
             this.labels.add(key);
-            rates.put(key,Double.parseDouble(rates.getString(key)));
-            hasRates = true;
+            this.rates.put(key,Double.parseDouble(jsonRates.getString(key)));
         }
         this.ratesDate = new Date(System.currentTimeMillis());
         db.addRates(this);
     }
 
     public Double convertCurrency(String fromCurrencyKey, Double fromCurrencyValue, String toCurrencyKey) {
-        Double fromCurrencyRate = this.rates.get(fromCurrencyKey);
-        Double toCurrencyRate = this.rates.get(toCurrencyKey);
-        return ( fromCurrencyValue * toCurrencyRate ) / fromCurrencyRate;
+        if (this.rates.containsKey(fromCurrencyKey) && this.rates.containsKey(fromCurrencyKey)) {
+            Double fromCurrencyRate = this.rates.get(fromCurrencyKey);
+            Double toCurrencyRate = this.rates.get(toCurrencyKey);
+            return ( fromCurrencyValue * toCurrencyRate ) / fromCurrencyRate;
+        } else {
+            return new Double(0);
+        }
     }
 
     public AsyncTask getDownloader() {
@@ -86,14 +87,6 @@ public class ExchangeRater {
 
     public void setRates(Map<String, Double> rates) {
         this.rates = rates;
-    }
-
-    public Boolean getHasRates() {
-        return hasRates;
-    }
-
-    public void setHasRates(Boolean hasRates) {
-        this.hasRates = hasRates;
     }
 
     public ArrayList<String> getLabels() {
