@@ -2,6 +2,7 @@ package com.example.conversor;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
@@ -61,5 +62,11 @@ public class MainActivity extends AppCompatActivity {
             toValue.setText(exchangeRater.convertCurrency(fromCurrency.getSelectedItem().toString(), fromNumber, toCurrency.getSelectedItem().toString()).toString());
         }
     }
+
+    public void btnCreditsClick(View v) {
+        Intent intent = new Intent(this, CreditsActivity.class);
+        startActivity(intent);
+    }
+
 
 }
