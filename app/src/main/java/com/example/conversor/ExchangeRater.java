@@ -3,7 +3,6 @@ package com.example.conversor;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.AsyncTask;
-import android.util.Log;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -62,7 +61,6 @@ public class ExchangeRater {
     }
 
     public void changeRatesByDate(Date date) {
-        Log.v("changeRatesByDate()", "alterando para cotações de " + new SimpleDateFormat("dd/MM/yyyy").format(date));
         this.ratesDate = date;
         this.rates = db.getRatesMapbyDate(date);
         this.labels.clear();

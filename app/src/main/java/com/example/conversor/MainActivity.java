@@ -4,7 +4,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.AdapterView;
@@ -41,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
         exchangeRater = new ExchangeRater(getBaseContext());
         datesInRange = new ArrayList<>();
 
-        dateSelector = findViewById(R.id.dateSelector);
+        dateSelector = findViewById(R.id.historySelector);
         fromCurrency = findViewById(R.id.fromCurrency);
         fromValue = findViewById(R.id.fromValue);
         toCurrency = findViewById(R.id.toCurrency);
@@ -83,9 +82,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
             @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
-                Log.d("ITEM", "NOT");
-            }
+            public void onNothingSelected(AdapterView<?> adapterView) {}
         });
 
         ArrayAdapter<String> fromCurrencyAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, exchangeRater.getLabels());
@@ -111,6 +108,11 @@ public class MainActivity extends AppCompatActivity {
 
     public void btnCreditsClick(View v) {
         Intent intent = new Intent(this, CreditsActivity.class);
+        startActivity(intent);
+    }
+
+    public void btnHistoryClick(View v) {
+        Intent intent = new Intent(this, HistoryActivity.class);
         startActivity(intent);
     }
 
